@@ -3,6 +3,7 @@ package com.synclife.studyroom.domain.entity;
 import com.synclife.studyroom.domain.entity.constant.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,4 +30,12 @@ public class User {
   @Enumerated(EnumType.STRING)
   @Column(name = "role")
   private Role role;
+
+  @Builder
+  public User(String loginId, String loginPw, String name, Role role) {
+    this.loginId = loginId;
+    this.loginPw = loginPw;
+    this.name = name;
+    this.role = role;
+  }
 }
