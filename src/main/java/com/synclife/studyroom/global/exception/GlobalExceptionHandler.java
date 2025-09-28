@@ -26,7 +26,6 @@ public class GlobalExceptionHandler {
                             .timestamp(LocalDateTime.now())
                             .path(request.getRequestURI())
                             .build()
-
             );
   }
 }
