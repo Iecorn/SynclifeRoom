@@ -10,7 +10,7 @@ cd studyroom
 ---
 
 ## 2. Gradle 빌드
-
+터미널에 JAVA_HOME 환경 변수 및 시스템 PATH java 설정 후 실행
 ```bash
 ./gradlew clean build
 ```
