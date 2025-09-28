@@ -72,7 +72,13 @@ public class RoomReadService {
       }
 
       // 요청 결과로 조립
-      freeTimeRooms.add(RoomReservationResponse.builder().roomId(currentReservation.roomId()).name(currentReservation.name()).times(freeTime).build());
+      freeTimeRooms.add(
+              RoomReservationResponse.builder()
+              .roomId(currentReservation.roomId())
+              .name(currentReservation.name())
+              .times(freeTime)
+              .build()
+      );
 
       log.debug("룸 처리 완료 - roomId={}, 빈 시간 슬롯 {}개", currentReservation.roomId(), freeTime.size());
     }
