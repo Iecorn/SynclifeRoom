@@ -193,5 +193,5 @@ SET TIME ZONE 'Asia/Seoul';
 ## 🛠️ ADR
 [ADR](doc/api-doc.md)
 
-## ⚛️ LLM
-[LLM](doc/llm-doc.md)
+## ⚛️ LLM 사용구간
+[LLM 사용구간](doc/llm-doc.md)
