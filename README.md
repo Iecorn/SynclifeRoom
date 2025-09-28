@@ -182,7 +182,7 @@ SET TIME ZONE 'Asia/Seoul';
 </details>
 
 ## ✏️ 테이블 명세서
-[테이블 명세서](doc/tableSpec-doc)
+[테이블 명세서](doc/tableSpec-doc.md)
 
 ## ▶️ 실행가이드
 [실행가이드](./doc/runningGuide-doc.md)
