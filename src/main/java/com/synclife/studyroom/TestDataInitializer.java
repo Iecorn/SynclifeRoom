@@ -8,6 +8,7 @@ import com.synclife.studyroom.domain.repository.ReservationRepository;
 import com.synclife.studyroom.domain.repository.RoomRepository;
 import com.synclife.studyroom.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.util.List;
 import static com.synclife.studyroom.domain.entity.constant.Role.*;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class TestDataInitializer implements CommandLineRunner {
 
@@ -29,6 +31,8 @@ public class TestDataInitializer implements CommandLineRunner {
   @Override
   @Transactional
   public void run(String... args) throws Exception {
+    log.info("테스트 데이터 초기화 시작");
+
     // User 생성
     User admin = User.builder().loginId("admin01").loginPw("pw1234").name("관리자").role(ADMIN).build();
     User user1 = User.builder().loginId("user01").loginPw("pw1111").name("김철수").role(USER).build();
@@ -39,6 +43,7 @@ public class TestDataInitializer implements CommandLineRunner {
 
     List<User> users = List.of(admin, user1, user2, user3, user4, user5);
     userRepository.saveAll(users);
+    log.info("유저 생성 완료 - 총 {}명", users.size());
 
     // Room 생성
     Room roomA = Room.builder().user(admin).name("A룸").capacity(10).address("서울시 강남구 테헤란로 123").build();
@@ -49,8 +54,10 @@ public class TestDataInitializer implements CommandLineRunner {
 
     List<Room> rooms = List.of(roomA, roomB, roomC, roomD, roomE);
     roomRepository.saveAll(rooms);
+    log.info("룸 생성 완료 - 총 {}개", rooms.size());
 
     LocalDateTime baseDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    int reservationCount = 0;
 
     for (Room room : rooms) {
       for (int day = 3; day < 15; day++) {
@@ -58,15 +65,13 @@ public class TestDataInitializer implements CommandLineRunner {
           LocalDateTime startTime = baseDate.plusDays(day).withHour(9 + i * 2).withMinute(0).withSecond(0).withNano(0);
           LocalDateTime endTime = startTime.plusHours(2);
 
-          // 방장 제외, 한 유저만 선택
           List<User> availableUsers = users.stream()
                   .filter(u -> !u.getUserId().equals(room.getUser().getUserId()))
                   .toList();
 
           if (availableUsers.isEmpty()) continue;
 
-          // 랜덤으로 한 명 선택
-          User user = availableUsers.get((int)(Math.random() * availableUsers.size()));
+          User user = availableUsers.get((int) (Math.random() * availableUsers.size()));
 
           Reservation reservation = Reservation.builder()
                   .room(room)
@@ -76,8 +81,16 @@ public class TestDataInitializer implements CommandLineRunner {
                   .build();
 
           reservationRepository.save(reservation);
+          reservationCount++;
+
+          log.debug("예약 생성 - roomId={}, roomName={}, userId={}, userName={}, startAt={}, endAt={}",
+                  room.getRoomId(), room.getName(),
+                  user.getUserId(), user.getName(),
+                  startTime, endTime);
         }
       }
     }
+
+    log.info("테스트 예약 데이터 생성 완료 - 총 {}건 생성", reservationCount);
   }
 }

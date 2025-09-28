@@ -7,13 +7,14 @@ import com.synclife.studyroom.domain.entity.User;
 import com.synclife.studyroom.domain.repository.RoomRepository;
 import com.synclife.studyroom.domain.repository.UserRepository;
 import com.synclife.studyroom.global.exception.CustomException;
-import com.synclife.studyroom.global.exception.errorcode.RoomErrorCode;
-import com.synclife.studyroom.global.exception.errorcode.UserErrorCode;
 import com.synclife.studyroom.global.security.UserPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.synclife.studyroom.global.exception.errorcode.RoomErrorCode.ROOM_UNAUTHORIZED;
+import static com.synclife.studyroom.global.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -29,12 +30,19 @@ public class RoomWriteService {
 
   // 어드민 전용
   public RoomResponse createRoom(RoomRequest roomRequest, UserPayload payload){
+    log.info("방 생성 요청 - 요청자 userId={}, role={}, roomName={}",
+            payload.userId(), payload.role(), roomRequest.name());
+
     if(!payload.role().equals(ADMIN)){
-      throw new CustomException(RoomErrorCode.ROOM_UNAUTHORIZED);
+      log.warn("방 생성 권한 없음 - 요청자 userId={}, role={}", payload.userId(), payload.role());
+      throw new CustomException(ROOM_UNAUTHORIZED);
     }
 
     User user = userRepository.findById(roomRequest.userId())
-            .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            .orElseThrow(() -> {
+              log.error("방 생성 실패 - 존재하지 않는 유저 userId={}", roomRequest.userId());
+              return new CustomException(USER_NOT_FOUND);
+            });
 
     Room room = Room.builder()
             .user(user)
@@ -45,7 +53,8 @@ public class RoomWriteService {
 
     roomRepository.save(room);
 
-    log.info("Room created: {}", room.getName());
+    log.info("방 생성 성공 - roomId={}, roomName={}, ownerUserId={}",
+            room.getRoomId(), room.getName(), user.getUserId());
 
     return RoomResponse.builder()
             .roomId(room.getRoomId())
@@ -54,5 +63,6 @@ public class RoomWriteService {
             .address(room.getAddress())
             .capacity(room.getCapacity())
             .build();
+
   }
 }
